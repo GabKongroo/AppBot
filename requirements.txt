@@ -1,0 +1,10 @@
+python-telegram-bot>=20.0
+fastapi
+uvicorn
+sqlalchemy
+python-dotenv
+boto3
+botocore
+requests
+httpx
+aiohttp
