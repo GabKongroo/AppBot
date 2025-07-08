@@ -56,13 +56,14 @@ def generate_r2_signed_url(key: str, expires_in: int = 3600) -> str:
 
 @app_fastapi.post("/internal/send_message")
 async def send_message_endpoint(request: Request):
-    # Sicurezza: verifica internal token solo se presente
-    internal_token = request.headers.get("X-Internal-Token")
-    # Consenti in sandbox/testing se INTERNAL_TOKEN non è impostato
+    # Sicurezza: verifica internal token solo se BOT_INTERNAL_URL è impostato (ambiente produzione)
     from utils import get_env_var
-    paypal_env = get_env_var("PAYPAL_ENV", "sandbox").lower()
-    if INTERNAL_TOKEN and (internal_token != INTERNAL_TOKEN):
-        return {"status": "error", "message": "Unauthorized"}, 401
+    internal_url = get_env_var("BOT_INTERNAL_URL")
+    internal_token = request.headers.get("X-Internal-Token")
+    if internal_url:
+        INTERNAL_TOKEN = get_env_var("INTERNAL_TOKEN")
+        if INTERNAL_TOKEN and (internal_token != INTERNAL_TOKEN):
+            return {"status": "error", "message": "Unauthorized"}, 401
 
     data = await request.json()
     user_id = data.get("user_id")

@@ -34,9 +34,12 @@ def get_env_var(key, default=None):
     return os.environ.get(key, default)
 
 def get_internal_token():
+    """
+    Restituisce l'INTERNAL_TOKEN solo se è richiesta la comunicazione interna (cioè se BOT_INTERNAL_URL è impostato).
+    """
+    url = get_env_var("BOT_INTERNAL_URL")
     token = get_env_var("INTERNAL_TOKEN")
-    paypal_env = get_env_var("PAYPAL_ENV", "sandbox").lower()
-    if not token and paypal_env == "live":
+    if url and not token:
         raise RuntimeError("INTERNAL_TOKEN non impostato nelle variabili di ambiente!")
     return token
 
@@ -44,12 +47,12 @@ def get_bot_internal_url():
     """
     Restituisce l'URL interno del bot per comunicazione webhook->bot.
     In produzione (Render) deve essere HTTPS e fornito da Render come variabile di ambiente.
-    In locale usa http://localhost:8080.
+    In locale usa http://localhost:8000.
     """
     url = get_env_var("BOT_INTERNAL_URL")
     if url:
         return url
-    return "http://localhost:8080"
+    return "http://localhost:8000"
 
 
 PAYPAL_CLIENT_ID = get_env_var("PAYPAL_CLIENT_ID")
