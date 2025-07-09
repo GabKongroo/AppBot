@@ -1703,9 +1703,7 @@ async def update_message_with_bundle(query, bundle, caption, keyboard):
     # Usa l'immagine del bundle se disponibile, altrimenti testo semplice
     image_key = bundle.get("image_key")
     if image_key:
-        from utils import get_env_var
-        R2_PUBLIC_BASE = get_env_var("R2_PUBLIC_BASE_URL")
-        # L'image_key contiene già il percorso completo (es. "public/bundle_images/bundle.jpeg")
+        # Usa la configurazione centralizzata R2
         image_url = f"{R2_PUBLIC_BASE}/{image_key}"
         
         if validate_url(image_url):
@@ -1792,9 +1790,7 @@ async def send_bundle_preview(update, context):
     for i, beat in enumerate(bundle['beats'], 1):
         preview_key = beat.get('preview_key')
         if preview_key:
-            from utils import get_env_var
-            R2_PUBLIC_BASE = get_env_var("R2_PUBLIC_BASE_URL")
-            # Il preview_key contiene già il percorso completo (es. "public/previews/EVERY TIME_spoiler.mp3")
+            # Usa la configurazione centralizzata R2
             preview_url = f"{R2_PUBLIC_BASE}/{preview_key}"
             
             try:
