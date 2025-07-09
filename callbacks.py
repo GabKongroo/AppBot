@@ -30,18 +30,21 @@ from telegram.constants import ParseMode
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Gestione variabili ambiente: locale (.env) o produzione (Render.com)
-env_path = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(env_path):
-    from dotenv import load_dotenv
-    load_dotenv(env_path)
+# Usa la configurazione centralizzata
+from config import get_r2_config, get_paypal_config
 
-# Get Cloudflare R2 public URL from .env
-R2_ENDPOINT_URL = os.environ.get("R2_ENDPOINT_URL")
-R2_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME")
-R2_PUBLIC_BASE = os.environ.get("R2_PUBLIC_BASE_URL")  # Use a direct public URL
-PAYPAL_CLIENT_ID = os.environ.get("PAYPAL_CLIENT_ID")
-PAYPAL_CLIENT_SECRET = os.environ.get("PAYPAL_CLIENT_SECRET")
+# Configurazione dinamica basata su ambiente
+R2_CONFIG = get_r2_config()
+PAYPAL_CONFIG = get_paypal_config()
+
+# Variabili R2
+R2_ENDPOINT_URL = R2_CONFIG["endpoint_url"]
+R2_BUCKET_NAME = R2_CONFIG["bucket_name"]
+R2_PUBLIC_BASE = R2_CONFIG["public_base_url"]
+
+# Variabili PayPal
+PAYPAL_CLIENT_ID = PAYPAL_CONFIG["client_id"]
+PAYPAL_CLIENT_SECRET = PAYPAL_CONFIG["client_secret"]
 
 # Helper functions
 def ensure_path(key, kind):
