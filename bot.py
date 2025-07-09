@@ -6,6 +6,8 @@ import uvicorn
 import aiohttp
 import tempfile
 import boto3
+import time
+import requests
 from urllib.parse import urlparse
 from botocore.config import Config
 
@@ -581,6 +583,27 @@ def main():
         target=lambda: uvicorn.run(app_fastapi, host="0.0.0.0", port=port, reload=False),
         daemon=True
     ).start()
+
+    # Aspetta che il server si avvii e sia pronto
+    import time
+    import requests
+    
+    print(f"[INFO] Avvio del server HTTP sulla porta {port}...")
+    time.sleep(5)  # Aumentato da 2 a 5 secondi
+    
+    # Verifica che il server sia pronto
+    max_retries = 10
+    for i in range(max_retries):
+        try:
+            response = requests.get(f"http://localhost:{port}/health", timeout=5)
+            if response.status_code == 200:
+                print(f"[INFO] Server HTTP pronto sulla porta {port}")
+                break
+        except Exception as e:
+            print(f"[INFO] Server non ancora pronto, tentativo {i+1}/{max_retries}")
+            time.sleep(2)
+    else:
+        print(f"[WARNING] Server HTTP potrebbe non essere pronto dopo {max_retries} tentativi")
 
     # Avvia il bot Telegram con polling (funziona sia locale che su server)
     app.run_polling()
