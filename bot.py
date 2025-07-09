@@ -568,12 +568,17 @@ def main():
         """Job asincrono per pulire le prenotazioni scadute"""
         cleanup_expired_reservations()
     
-    job_queue.run_repeating(
-        callback=cleanup_job,
-        interval=300,  # 5 minuti
-        first=30,      # Avvia dopo 30 secondi
-        name="cleanup_reservations"
-    )
+    # Controlla se JobQueue è disponibile prima di usarlo
+    if job_queue is not None:
+        job_queue.run_repeating(
+            callback=cleanup_job,
+            interval=300,  # 5 minuti
+            first=30,      # Avvia dopo 30 secondi
+            name="cleanup_reservations"
+        )
+        print("[INFO] JobQueue configurato per cleanup automatico prenotazioni")
+    else:
+        print("[WARNING] JobQueue non disponibile - cleanup automatico disabilitato")
     
     # Usa la porta da variabile d'ambiente, default a 8080 (per locale)
     port = int(os.environ.get("PORT", 8080))
