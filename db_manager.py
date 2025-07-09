@@ -2,25 +2,21 @@ from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, 
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from sqlalchemy.pool import QueuePool
 from datetime import datetime, timedelta, timezone
-import logging
-import os
-import os
-import logging
-import time
-import random
 from sqlalchemy.exc import OperationalError
 from contextlib import contextmanager
+import logging
+import os
+import time
+import random
 
 # Configurazione logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Carica le variabili d'ambiente dal file .env nella stessa cartella
-from dotenv import load_dotenv
-env_path = os.path.join(os.path.dirname(__file__), '.env')
-load_dotenv(env_path)
+# Usa la configurazione centralizzata
+from config import get_database_url
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = get_database_url()
 
 # Configurazione del pool di connessioni
 engine = create_engine(
@@ -437,7 +433,7 @@ def initialize_database():
         
         # Verifica che le tabelle siano state create
         with SessionLocal() as session:
-            # Test di connessione e verifica struttura tabelle
+            # Test di connessione e verifica struttura tabelle (PostgreSQL)
             result = session.execute(text("""
                 SELECT table_name 
                 FROM information_schema.tables 
@@ -500,7 +496,7 @@ def check_database_status():
         with SessionLocal() as session:
             status["connected"] = True
             
-            # Lista delle tabelle
+            # Lista delle tabelle (PostgreSQL)
             result = session.execute(text("""
                 SELECT table_name 
                 FROM information_schema.tables 
@@ -839,8 +835,7 @@ def timeout_session(timeout_seconds=5):
     """Context manager per sessioni con timeout per prevenire deadlock"""
     session = SessionLocal()
     try:
-        # Imposta timeout per SQLite
-        session.execute(text(f"PRAGMA busy_timeout = {timeout_seconds * 1000}"))
+        # PostgreSQL non ha bisogno di PRAGMA busy_timeout
         yield session
     finally:
         session.close()
